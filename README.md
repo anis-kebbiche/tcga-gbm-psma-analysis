@@ -21,7 +21,7 @@ This script requires a master Excel tracking file to be placed in the same root 
 * **Action Required:** Download the supplementary material 3 (named `11060_2026_5470_MOESM3_ESM.xlsx`), ensure the filename matches exactly, and place it in the same folder as this repository's scripts.
 
 ### Step 2: Main Analysis
-**File:** `TCGA_GBM_PSMA_analysis_final.R`
+**File:** `TCGA_GBM_PSMA_analysis.R`
 
 Once the data preparation is complete, run this script. It loads the cleaned datasets and performs the full downstream analysis, including:
 * Propensity Score Matching (PSM) for Initial vs. Recurrent tumors.
