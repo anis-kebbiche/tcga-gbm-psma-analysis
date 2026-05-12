@@ -39,9 +39,10 @@ This is a standalone, targeted analysis script that focuses exclusively on the l
 
 Instead of treating the samples as independent groups, this script tracks the intra-patient evolution of PSMA (FOLH1) expression over time, categorizing patients into "Increased" or "Decreased" PSMA trends. It then performs:
 * Paired Differential Gene Expression (DESeq2) at recurrence based on the PSMA trend.
-* Evolution of Hallmark pathway scores (Hypoxia & Angiogenesis).
+* Evolution of Hallmark pathway scores (Hypoxia & Angiogenesis) with **robust statistical validation (paired and independent t-tests)**.
 * Trend-based Kaplan-Meier survival analysis.
-* Gene Ontology (GO) enrichment for upregulated biological processes.
+* Gene Ontology (GO) enrichment (Over-Representation Analysis) for upregulated biological processes.
+* Gene Set Enrichment Analysis (GSEA) across the entire ranked transcriptome to detect subtle, coordinated pathway shifts.
 
 *Note: You do not need to run Step 2 to run this script, but you **must** have completed Step 1 to generate the required input data matrices.*
 
