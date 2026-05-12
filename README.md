@@ -1,12 +1,12 @@
 # TCGA GBM PSMA Analysis Pipeline
 
-This repository contains an automated R pipeline to download, process, and analyze RNA-seq and clinical data for Glioblastoma (GBM) and Lower-Grade Glioma (LGG) from the TCGA database. 
+This repository contains a comprehensive, automated R pipeline to download, process, and analyze RNA-seq and clinical data for Glioblastoma (GBM) and Lower-Grade Glioma (LGG) from the TCGA database. 
 
-The analysis specifically focuses on PSMA (FOLH1) expression, generating survival analyses, differential expression (DESeq2), and scoring for hypoxia and angiogenesis signatures.
+The analysis specifically focuses on PSMA (FOLH1) expression across different clinical contexts. It features both a broad cohort-level analysis (generating survival curves, differential expression via DESeq2, and scoring for hypoxia/angiogenesis signatures) and a targeted **longitudinal analysis** tracking intra-patient PSMA dynamics from initial diagnosis to tumor recurrence.
 
 ## How to Use This Pipeline
 
-To reproduce the analysis, you need to run the two R scripts in the following order:
+To reproduce the full analysis, follow these three steps. Note that Step 1 is mandatory, but Steps 2 and 3 can be run independently of each other once the data is prepared:
 
 ### Step 1: Data Preparation
 **File:** `Data_preparation_pipeline_TCGA_GBM_LGG.R`
@@ -45,10 +45,10 @@ Instead of treating the samples as independent groups, this script tracks the in
 
 *Note: You do not need to run Step 2 to run this script, but you **must** have completed Step 1 to generate the required input data matrices.*
 
-## Requirements & Packages
-Both scripts include auto-installers that will check for and install missing packages. Key dependencies include:
-* **CRAN:** `dplyr`, `ggplot2`, `survival`, `survminer`, `MatchIt`, `gprofiler2`, `patchwork`
-* **Bioconductor:** `TCGAbiolinks`, `DESeq2`, `clusterProfiler`, `org.Hs.eg.db`, `SummarizedExperiment`
+## 📦 Requirements & Packages
+All three scripts include auto-installers that will check for and install missing packages upon execution. Key dependencies across the pipeline include:
+* **CRAN:** `dplyr`, `ggplot2`, `survival`, `survminer`, `MatchIt`, `gprofiler2`, `patchwork`, `pheatmap`, `ggpubr`, `msigdbr`, `ggrepel`, `readxl`
+* **Bioconductor:** `TCGAbiolinks`, `DESeq2`, `clusterProfiler`, `org.Hs.eg.db`, `SummarizedExperiment`, `enrichplot`, `apeglm`
 
 ## ⚠️ Data Storage Note
 To keep this repository lightweight and comply with GitHub's file size limits, the raw TCGA matrices and clinical datasets downloaded during Step 1 are not tracked in this repository (via `.gitignore`). Anyone cloning this repository simply needs to run Step 1 to generate the data locally.
