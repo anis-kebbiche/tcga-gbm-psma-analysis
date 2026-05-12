@@ -32,6 +32,19 @@ Once the data preparation is complete, run this script. It loads the cleaned dat
 
 All plots (`.png`/`.pdf`) and statistical summary tables (`.csv`/`.txt`) will be automatically exported to a dedicated output folder.
 
+### Step 3: Longitudinal Paired Dynamics Analysis
+**File:** `PSMA_dynamic_analysis_paired.R`
+
+This is a standalone, targeted analysis script that focuses exclusively on the longitudinal dynamics of the disease. It automatically isolates the specific subset of patients who have **both** Initial and Recurrent tumor samples in the dataset. 
+
+Instead of treating the samples as independent groups, this script tracks the intra-patient evolution of PSMA (FOLH1) expression over time, categorizing patients into "Increased" or "Decreased" PSMA trends. It then performs:
+* Paired Differential Gene Expression (DESeq2) at recurrence based on the PSMA trend.
+* Evolution of Hallmark pathway scores (Hypoxia & Angiogenesis).
+* Trend-based Kaplan-Meier survival analysis.
+* Gene Ontology (GO) enrichment for upregulated biological processes.
+
+*Note: You do not need to run Step 2 to run this script, but you **must** have completed Step 1 to generate the required input data matrices.*
+
 ## Requirements & Packages
 Both scripts include auto-installers that will check for and install missing packages. Key dependencies include:
 * **CRAN:** `dplyr`, `ggplot2`, `survival`, `survminer`, `MatchIt`, `gprofiler2`, `patchwork`
