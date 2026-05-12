@@ -15,11 +15,15 @@
 #         01_PSMA_Evolution_Overview.png
 #         02_Volcano_DGE.png
 #         03_Heatmap_Top50_DEGs.png
+#         03b_Heatmap_Top50_DEGs_Symbols.png
 #         04_Biological_Scores_TTest.png
 #         05_KM_Survival_Analysis.png
 #         06_GO_Enrichment_Increased_Group.csv
 #         06_GO_Dotplot.png
 #         07_GO_Barplot.png
+#         08_GSEA_Full_Results.csv
+#         08_GSEA_Dotplot.png
+#         09_GSEA_Mountain_Plot_Top1.png
 #         DGE_Full_Results.csv
 #         paired_patients_report.txt
 # =============================================================================
@@ -301,11 +305,12 @@ message("Figure 03: Heatmap of top DEGs...")
 if (exists("res_rec") && nrow(res_rec) > 0) {
   top_genes <- head(res_rec$gene[order(res_rec$pvalue)], 50)
   top_genes <- intersect(top_genes, rownames(vst_mat))   # safety check
-
+  
   if (length(top_genes) >= 2) {
     h_mat <- vst_mat[top_genes, meta_rec$sample_barcode]
     colnames(h_mat) <- meta_rec$patient_id
-
+    
+    # 1. Première heatmap (Ensembl IDs)
     png(file.path(output_dir, "03_Heatmap_Top50_DEGs.png"),
         width = 1200, height = 1500, res = 150)
     pheatmap(h_mat,
@@ -315,6 +320,41 @@ if (exists("res_rec") && nrow(res_rec) > 0) {
              scale = "row",
              color = colorRampPalette(c("navy", "white", "firebrick3"))(100))
     dev.off()
+    
+    # 2. Traduction des Ensembl IDs en Gene Symbols
+    message("  Translating Ensembl IDs to Gene Symbols for the second heatmap...")
+    gene_symbols <- tryCatch({
+      AnnotationDbi::mapIds(org.Hs.eg.db,
+                            keys = rownames(h_mat),
+                            column = "SYMBOL",
+                            keytype = "ENSEMBL",
+                            multiVals = "first")
+    }, error = function(e) { rep(NA, nrow(h_mat)) })
+    
+    # Remplacer les NA (gènes sans symbole connu) par leur Ensembl ID d'origine
+    gene_symbols[is.na(gene_symbols)] <- rownames(h_mat)[is.na(gene_symbols)]
+    
+    # Sécurité : pheatmap plante si deux lignes ont le même nom. 
+    # make.unique() ajoute ".1", ".2" si un même symbole apparaît deux fois.
+    gene_symbols <- make.unique(gene_symbols)
+    
+    # Création de la matrice avec les nouveaux noms
+    h_mat_symbols <- h_mat
+    rownames(h_mat_symbols) <- gene_symbols
+    
+    # 3. Deuxième heatmap (Gene Symbols)
+    png(file.path(output_dir, "03b_Heatmap_Top50_DEGs_Symbols.png"),
+        width = 1200, height = 1500, res = 150)
+    pheatmap(h_mat_symbols,
+             annotation_col = data.frame(Trend = meta_rec$trend,
+                                         row.names = meta_rec$patient_id),
+             main  = "Top 50 DEGs (Gene Symbols)",
+             scale = "row",
+             color = colorRampPalette(c("navy", "white", "firebrick3"))(100))
+    dev.off()
+    
+    message("  Both heatmaps generated successfully.")
+    
   } else {
     message("  Heatmap skipped: fewer than 2 genes passed the filter.")
   }
@@ -454,6 +494,61 @@ if (!exists("res_rec")) {
       message("  No significant GO terms found at the specified thresholds.")
     }
   }
+}
+
+# =============================================================================
+# STEP 12: GENE SET ENRICHMENT ANALYSIS (GSEA)
+# =============================================================================
+message("Step 9: Running GSEA (Gene Set Enrichment Analysis)...")
+
+# 1. Prepare the ranked gene list
+gene_list <- res_rec$log2FoldChange
+names(gene_list) <- res_rec$gene
+gene_list <- sort(gene_list, decreasing = TRUE)
+
+# --- THE FIX FOR CHANGING LISTS ---
+# Lock the random number generator so GSEA results never change between runs
+set.seed(123) 
+
+# 2. Run GSEA for Biological Processes
+gsea_res <- gseGO(geneList     = gene_list,
+                  OrgDb        = org.Hs.eg.db,
+                  keyType      = 'ENSEMBL',
+                  ont          = "BP",
+                  minGSSize    = 10,
+                  maxGSSize    = 500,
+                  pvalueCutoff = 0.05,
+                  verbose      = FALSE,
+                  seed         = TRUE) # Ensures permutation reproducibility
+
+# 3. Save the GSEA results
+write.csv(as.data.frame(gsea_res), 
+          file.path(output_dir, "08_GSEA_Full_Results.csv"), row.names = FALSE)
+
+# 4. Visualize the Top GSEA Pathways
+if (!is.null(gsea_res) && nrow(as.data.frame(gsea_res)) > 0) {
+  
+  # The native ggplot2 fix for long phrases overlapping
+  p_gsea_dot <- dotplot(gsea_res, showCategory = 15, split = ".sign", orderBy = "NES") + 
+    facet_grid(.~.sign) +
+    # This magic line intercepts the Y-axis labels and forces a line break every 35 characters
+    scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 50)) +
+    labs(title = "GSEA: Top Activated & Suppressed Pathways") +
+    theme(
+      axis.text.y = element_text(size = 9, lineheight = 0.8), # lineheight squishes the wrapped lines closer together
+      plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
+    )
+  
+  # You can safely return to a normal height (e.g., 8 or 9)
+  ggsave(file.path(output_dir, "08_GSEA_Dotplot.png"), p_gsea_dot, width = 11, height = 8)
+  
+  # GSEA Enrichment Plot for the #1 Top Pathway
+  p_mountain <- gseaplot2(gsea_res, geneSetID = 1, title = gsea_res$Description[1])
+  ggsave(file.path(output_dir, "09_GSEA_Mountain_Plot_Top1.png"), p_mountain, width = 8, height = 6)
+  
+  message("GSEA plots saved successfully without overlap.")
+} else {
+  message("No significant GSEA terms found.")
 }
 
 # -----------------------------------------------------------------------------
