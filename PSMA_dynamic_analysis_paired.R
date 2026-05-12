@@ -8,12 +8,10 @@
 #
 #   <project_root>/                          ← where this script lives
 #     PSMA_dynamic_analysis_paired.R
-#     data/
 #       TCGA_GBM_IDHwt_with_RNAseq/
 #         rna_seq_raw_counts_initial_recurrent_filtered.csv
 #         TCGA_GBM_clinical_initial_recurrent.csv
-#     outputs/
-#       PSMA_Paired_Dynamics/                ← created automatically
+#     PSMA_Paired_Dynamics/                ← created automatically
 #         01_PSMA_Evolution_Overview.png
 #         02_Volcano_DGE.png
 #         03_Heatmap_Top50_DEGs.png
@@ -47,10 +45,10 @@ get_script_dir <- function() {
 script_dir    <- get_script_dir()
 message("Script directory: ", script_dir)
 
-data_dir      <- file.path(script_dir, "data", "TCGA_GBM_IDHwt_with_RNAseq")
+data_dir      <- file.path(script_dir, "TCGA_GBM_IDHwt_with_RNAseq")
 counts_file   <- file.path(data_dir, "rna_seq_raw_counts_initial_recurrent_filtered.csv")
 clinical_file <- file.path(data_dir, "TCGA_GBM_clinical_initial_recurrent.csv")
-output_dir    <- file.path(script_dir, "outputs", "PSMA_Paired_Dynamics")
+output_dir    <- file.path(script_dir, "PSMA_Paired_Dynamics")
 
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
