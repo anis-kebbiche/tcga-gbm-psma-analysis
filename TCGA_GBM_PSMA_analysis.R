@@ -16,12 +16,10 @@ options(stringsAsFactors = FALSE)
 #
 #   <project_root>/                              ← where this script lives
 #     TCGA_GBM_PSMA_analysis_final.R
-#     data/
 #       TCGA_GBM_IDHwt_with_RNAseq/
 #         TCGA_GBM_clinical_initial_recurrent.csv
 #         rna_seq_raw_counts_initial_recurrent_filtered.csv
 #         fpkm_initial_recurrent_selected_genes.csv
-#     outputs/
 #       PSMA_GBM_initial_recurrent_outputs/      ← generated automatically
 #         Initial/
 #         Recurrent/
@@ -50,13 +48,13 @@ script_dir <- get_script_dir()
 message("Script directory: ", script_dir)
 
 # ── Input data ────────────────────────────────────────────────────────────────
-data_dir      <- file.path(script_dir, "data", "TCGA_GBM_IDHwt_with_RNAseq")
+data_dir      <- file.path(script_dir, "TCGA_GBM_IDHwt_with_RNAseq")
 clinical_file <- file.path(data_dir, "TCGA_GBM_clinical_initial_recurrent.csv")
 counts_file   <- file.path(data_dir, "rna_seq_raw_counts_initial_recurrent_filtered.csv")
 fpkm_file     <- file.path(data_dir, "fpkm_initial_recurrent_selected_genes.csv")
 
 # ── Output root (sub-folders created automatically) ───────────────────────────
-output_root   <- file.path(script_dir, "outputs", "PSMA_GBM_initial_recurrent_outputs")
+output_root   <- file.path(script_dir, "PSMA_GBM_initial_recurrent_outputs")
 
 folh1_id  <- "ENSG00000086205"
 psm_ratio <- 2L   # 2 initial matched per recurrent (1:2 PSM)
